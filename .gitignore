@@ -48,3 +48,7 @@ src/python/.cache/*
 src/python/pygrackle.egg-info/*
 src/python/pygrackle/*.c
 doc/build
+
+src/python/dist/pygrackle-0.1-py3.7-linux-x86_64.egg
+
+

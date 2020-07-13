@@ -391,7 +391,9 @@ c      chunit = (7.17775e-12_DKIND)/(2._DKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 !$omp&   brem, edot,
 !$omp&   hyd01k, h2k01, vibh, roth, rotl,
 !$omp&   gpldl, gphdl, hdlte, hdlow, cieco,
-!$omp&   itmask )
+!$omp&   itmask,
+!$omp&   l_H2shield, divrho, N_H2, tgas_touse, ngas_touse,
+!$omp&   b_doppler, f_shield, aWG2019 )
 #endif
       do t = 0, dk*dj-1
         k = t/dj      + ks+1
@@ -1423,7 +1425,7 @@ c -------------------------------------------------------------------
 
                tgas_touse = max(tgas1d(i),1E2_DKIND)
                tgas_touse = min(tgas_touse,8E3_DKIND)
-               ngas_touse = d(i,j,k) / (mmw(i) * mh)
+               ngas_touse = d(i,j,k) * dom / mmw(i)
                ngas_touse = min(ngas_touse,1E7_DKIND)
 
                aWG2019 = (0.8711_DKIND * log10(tgas_touse) - 1.928_DKIND) * 
