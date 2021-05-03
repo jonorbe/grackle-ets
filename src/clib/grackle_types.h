@@ -66,6 +66,8 @@ typedef struct
   gr_float *RT_HeI_ionization_rate;
   gr_float *RT_HeII_ionization_rate;
   gr_float *RT_H2_dissociation_rate;
+  gr_float *RT_HM_dissociation_rate;
+  gr_float *RT_H2II_dissociation_rate;
 
   gr_float *H2_self_shielding_length;
 

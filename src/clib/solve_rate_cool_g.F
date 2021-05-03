@@ -33,6 +33,7 @@
      &                avgsighi, avgsighei, avgsigheii,
      &                iradtrans, iradcoupled, iradstep,
      &                irt_honly, kphHI, kphHeI, kphHeII, kdissH2I,
+     &                kdissHM, kdissH2II,
      &                photogamma, xH2shield,
      &                ierr,
      &                ih2optical, iciecool, ithreebody, ciecoa, 
@@ -182,7 +183,8 @@
 !  Radiative transfer fields
 
       R_PREC  kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
-     &        kdissH2I(in,jn,kn), photogamma(in,jn,kn)
+     &        kdissH2I(in,jn,kn), kdissHM(in,jn,kn), 
+     &        kdissH2II(in,jn,kn), photogamma(in,jn,kn)
 
 !  H2 self-shielding length-scale field
 
@@ -391,9 +393,7 @@ c      chunit = (7.17775e-12_DKIND)/(2._DKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 !$omp&   brem, edot,
 !$omp&   hyd01k, h2k01, vibh, roth, rotl,
 !$omp&   gpldl, gphdl, hdlte, hdlow, cieco,
-!$omp&   itmask,
-!$omp&   l_H2shield, divrho, N_H2, tgas_touse, ngas_touse,
-!$omp&   b_doppler, f_shield, aWG2019 )
+!$omp&   itmask )
 #endif
       do t = 0, dk*dj-1
         k = t/dj      + ks+1
@@ -1163,10 +1163,6 @@ c -------------------------------------------------------------------
      &       f_shield, b_doppler, l_H2shield
       real*8 k13_CID, k13_DT
 
-!     locals for H2 self-shielding as WG+19
-
-      real*8 tgas_touse, ngas_touse, aWG2019
-
       real*8 nSSh, nratio
 
 !     Set log values of start and end of lookup tables
@@ -1420,30 +1416,13 @@ c -------------------------------------------------------------------
 
                N_H2 = dom*H2I(i,j,k) * l_H2shield
 
-! update: self-shielding following Wolcott-Green & Haiman (2019)
-! range of validity: T=100-8000 K, n<=1e7
-
-               tgas_touse = max(tgas1d(i),1E2_DKIND)
-               tgas_touse = min(tgas_touse,8E3_DKIND)
-               ngas_touse = d(i,j,k) * dom / mmw(i)
-               ngas_touse = min(ngas_touse,1E7_DKIND)
-
-               aWG2019 = (0.8711_DKIND * log10(tgas_touse) - 1.928_DKIND) * 
-     &                 exp(-0.2856_DKIND * log10(ngas_touse)) +
-     &                 (-0.9639_DKIND * log10(tgas_touse) + 3.892_DKIND)
-
                x = 2.0E-15_DKIND * N_H2
                b_doppler = 1E-5_DKIND *
      &                 sqrt(2._DKIND * kboltz *
      &                      tgas1d(i) / mass_h)
-!              f_shield = 0.965_DKIND / (1._DKIND + x/b_doppler)**1.1+
-               f_shield = 0.965_DKIND / (1._DKIND + x/b_doppler)**aWG2019+
+               f_shield = 0.965_DKIND / (1._DKIND + x/b_doppler)**1.1+
      &           0.035_DKIND * exp(-8.5E-4_DKIND * sqrt(1._DKIND +x))/
      &           sqrt(1._DKIND + x)
-
-! avoid f>1
-               f_shield = min(f_shield, 1._DKIND)
-
                k31shield(i) = f_shield * k31shield(i)
             endif
          enddo

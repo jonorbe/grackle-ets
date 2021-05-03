@@ -102,6 +102,19 @@ int local_calculate_cooling_time(chemistry_data *my_chemistry,
       fprintf(stderr, "Error in update_UVbackground_rates.\n");
       return FAIL;
     }
+    // Extra terms per particle
+    // So no rad trans. is enabled
+    // my_uvb_rates are multiplied by my_units->time_units;
+    // The RT values are multiplied by this factor in gizmo
+    // probably more consistent if done here
+    my_uvb_rates.k24 += *my_fields->RT_HI_ionization_rate;
+    my_uvb_rates.k25 += *my_fields->RT_HeI_ionization_rate;
+    my_uvb_rates.k26 += *my_fields->RT_HeII_ionization_rate;
+    my_uvb_rates.k27 += *my_fields->RT_HM_dissociation_rate;
+    my_uvb_rates.k28 += *my_fields->RT_H2II_dissociation_rate;
+    my_uvb_rates.k31 += *my_fields->RT_H2_dissociation_rate;
+    // What to do with extra heating term?
+    // += *my_fields->RT_heating_rate;
   }
   else {
     my_uvb_rates.k24       = my_rates->k24;
